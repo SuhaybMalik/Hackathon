@@ -64,10 +64,10 @@ class Account:
         self.currentTrip = destination
         trip.requestRide((self.username , destination))
 
-    def acceptRequest(self, trip, rider):
+    def acceptRequest(self, trip : Trip, rider):
         trip.addRider(rider)
         fullTrip = copy.deepcopy(trip)
-        trip.rideRequests.remove((self.username, self.currentTrip))
+        trip.rideRequests.remove((rider.username, rider.currentTrip))
         return fullTrip
 
     def requestFulfilled(self, trip):
@@ -83,10 +83,12 @@ trip = driver.newDriverTrip()
 rider1.riderTripRequest(trip)
 rider2.riderTripRequest(trip)
 
+print(trip.rideRequests)
+
 driver.acceptRequest(trip, rider2)
 print(trip.rideRequests)
 
-fullTrip = rider2.requestFulfilled(trip)
+#rider2.requestFulfilled(trip)
 
-print(trip.rideRequests)
-print(fullTrip.rideRequests)
+#print(trip.rideRequests)
+#print(fullTrip.rideRequests)
