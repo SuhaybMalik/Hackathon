@@ -10,8 +10,10 @@ class Trip:
     def __repr__(self):
         return str([self.timeStart, self.pool])
     
-    def addperson(self, endpoint, alias):
-        newPerson = Person(endpoint, alias)
+    def addperson(self):
+        destination = input("enter destination")
+        username = input("enter name")
+        newPerson = Person(destination, username)
         self.pool.append(newPerson.__repr__())
         newPath = newPerson.__repr__()
         #print(newPath)
@@ -26,8 +28,9 @@ class Person:
         return [str(self.path), self.alias]
 
 newTrip = Trip()
-newTrip.addperson("Worcester Polytechnic Institute, Worcester, Massachusetts", "steve jobs")
-newTrip.addperson("Clark University, Worcester, Massachusetts", "bill gates")
+newTrip.addperson()
+newTrip.addperson()
+newTrip.addperson()
 
 newtime = newTrip
 print(newtime)
