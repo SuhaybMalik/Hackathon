@@ -1,4 +1,5 @@
 import datetime
+import copy
 from geopy.geocoders import Nominatim
 geolocator = Nominatim(user_agent="deez")
 
@@ -42,7 +43,9 @@ class Account:
         self.username = username
         self.tripHistory = []
         self.plannedTrips = []
+        self.currentTrip = None
         self.path = 'placeholder'
+        self.stopTime = None
 
     def __repr__(self):
         return str([self.path, self.username])
@@ -58,11 +61,19 @@ class Account:
 
     def riderTripRequest(self, trip):
         destination = geolocator.geocode(input("Enter Destination: "))
+        self.currentTrip = destination
         trip.requestRide((self.username , destination))
 
     def acceptRequest(self, trip, rider):
         trip.addRider(rider)
+        fullTrip = copy.deepcopy(trip)
+        trip.rideRequests.remove((self.username, self.currentTrip))
+        return fullTrip
+
+    def requestFulfilled(self, trip):
+        self.stopTime = datetime.datetime.now()
         
+
 driver = Account("driver")
 rider1 = Account("rider1")
 rider2 = Account("rider2")
@@ -73,5 +84,9 @@ rider1.riderTripRequest(trip)
 rider2.riderTripRequest(trip)
 
 driver.acceptRequest(trip, rider2)
+print(trip.rideRequests)
 
-print(trip)
+fullTrip = rider2.requestFulfilled(trip)
+
+print(trip.rideRequests)
+print(fullTrip.rideRequests)
