@@ -8,7 +8,7 @@ class Trip:
         self.pool = []
 
     def __repr__(self):
-        return str([self.timeStart, self.pool])
+        return str([self.timeStart.strftime("%Y-%m-%d %H:%M:%S"), self.pool])
     
     def addperson(self):
         destination = input("enter destination")
