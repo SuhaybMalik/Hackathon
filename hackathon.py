@@ -64,7 +64,7 @@ class Account:
         self.currentTrip = destination
         trip.requestRide((self.username , destination))
 
-    def acceptRequest(self, trip : Trip, rider):
+    def acceptRequest(self, trip: Trip, rider):
         trip.addRider(rider)
         fullTrip = copy.deepcopy(trip)
         trip.rideRequests.remove((rider.username, rider.currentTrip))
