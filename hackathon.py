@@ -20,32 +20,45 @@ class Trip:
     def __init__(self, driver, startLocation, destination, startTime):
         self.startTime = startTime
         self.rideRequests = []  #list of all active requests
-        self.riders = []    #list of all active riders in the carpool
+        self.inCar = []    #list of all active riders in the carpool
+        self.riders = []
         self.driver = driver
         self.startLocation = startLocation
         self.destination = destination
         
     def __repr__(self):
-        return str([self.startTime.strftime("%Y-%m-%d %H:%M:%S"),"Driver: ", self.driver ,"Riders: ", self.riders])
+        return str([self.startTime.strftime("%Y-%m-%d %H:%M:%S"),"Driver: ", self.driver ,"Riders: ", self.inCar])
     
     def getStartTime(self):
         return self.startTime
     
     def addRider(self, rider):
         #adds a rider to the trip
+        self.inCar.append(rider)
         self.riders.append(rider)
 
     def startTrip(self):
         driver.currentTrip = self
-        for rider in self.riders:
-            rider
+        for rider in self.inCar:
+            rider.currentTrip = self
 
     def endTrip(self):
-        for rider in self.riders:
+        for rider in self.inCar:
             rider.tripHistory.append(TripRecord(self, rider))
        
         self.driver.tripHistory.append(TripRecord(self, rider))
-
+    def print(self):
+        print("Driver: " + str(driver.username))
+        for i, rider in enumerate(self.riders):
+            print("Rider " + str(i+1) + ": " + rider.username)
+        print("Start Location: " + str(self.startLocation))
+        print("End Location: " + str(self.destination))
+        print("Start Time: " + str(self.startTime.hour) + ":", end="")
+        if self.startTime.minute < 10:
+            print("0", end="")
+        print(str(self.startTime.minute), end="")
+        print(" on " + str(self.startTime.month) + "/" + str(self.startTime.day) + "/" + str(self.startTime.year))
+        
 class Account:
     def __init__(self, username, driver):
         self.username = username
@@ -82,8 +95,10 @@ class Account:
     #called when a rider requests to join a driver's trip
     def riderTripRequest(self, trip):
         #gets the gps location from the user
-        destination = geolocator.geocode(input("Enter Rider Destination: "))
-        self.currentTrip = destination
+        #destination = geolocator.geocode(input("Enter Rider Destination: "))
+        #self.currentTrip = destination
+        destination = "Placeholder"
+        self.currentTrip = "Placeholder"
 
         #appends the rider's request to a list of requests the driver can accept or deny
         trip.rideRequests.append((self.username , destination))
@@ -92,9 +107,9 @@ class Account:
     def acceptRequest(self, trip: Trip, rider):
         #adds the rider to the trip, and removes their request
         trip.addRider(rider)
-        fullTrip = copy.deepcopy(trip)
+        #fullTrip = copy.deepcopy(trip)
         trip.rideRequests.remove((rider.username, rider.currentTrip))
-        return fullTrip
+        #return fullTrip
     
 
     def denyRequest(self, trip: Trip, rider):
@@ -110,14 +125,14 @@ class Account:
             trip.endTrip() 
         else:
             self.tripHistory.append(TripRecord(trip, self))
-            trip.riders.remove(self)
+            trip.inCar.remove(self)
 
 
 class TripRecord:
     def __init__(self, trip: Trip, account: Account):
         self.startTime = trip.startTime
         self.endTime = datetime.datetime.now()
-        self.riders = trip.riders
+        self.inCar = trip.inCar
         self.driver = trip.driver
         self.startLocation = trip.startLocation
         self.destination = trip.destination
@@ -145,7 +160,9 @@ driver.acceptRequest(trip, rider1)
 driver.acceptRequest(trip, rider2)
 driver.acceptRequest(trip, rider3)
 print(trip.rideRequests)
-print(trip.riders)
+print(trip.inCar)
 rider3.requestFulfilled(trip)
 print(rider3.tripHistory[0])
-print(trip.riders)
+print(trip.inCar)
+print("\n\n")
+trip.print()
