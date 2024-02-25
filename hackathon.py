@@ -3,17 +3,16 @@ import copy
 from geopy.geocoders import Nominatim
 geolocator = Nominatim(user_agent="deez")
 
-class Users:
-    def __init__(self):
-        self.userList = []
+
+userList = []
     
-    def addUser(self, newUser):
-        if self.userList.length == 0:
-            self.userList.insert(newUser)
+def addUser(newUser):
+        if userList.count == 0:
+            userList.append(newUser)
         else:
-            for i, existingUser in enumerate(self.userList):
+            for i, existingUser in enumerate(userList):
                 if newUser.upper < existingUser.upper():
-                    self.userList.insert(i, newUser)
+                    userList.insert(i, newUser)
                     break
             
 class Trip:
@@ -26,10 +25,7 @@ class Trip:
         self.destination = destination
         
     def __repr__(self):
-        return str([self.startTime.strftime("%Y-%m-%d %H:%M:%S"), self.driver , self.riders])
-    
-    def requestRide(self, riderinfo):
-        self.rideRequests.append(riderinfo)
+        return str([self.startTime.strftime("%Y-%m-%d %H:%M:%S"),"Driver: ", self.driver ,"Riders: ", self.riders])
     
     def getStartTime(self):
         return self.startTime
@@ -46,6 +42,7 @@ class Account:
         self.currentTrip = None
         self.path = 'placeholder'
         self.stopTime = None
+        addUser(self)
 
     def __repr__(self):
         return str([self.path, self.username])
@@ -62,7 +59,7 @@ class Account:
     def riderTripRequest(self, trip):
         destination = geolocator.geocode(input("Enter Destination: "))
         self.currentTrip = destination
-        trip.requestRide((self.username , destination))
+        trip.rideRequests.append((self.username , destination))
 
     def acceptRequest(self, trip: Trip, rider):
         trip.addRider(rider)
