@@ -5,7 +5,8 @@ geolocator = Nominatim(user_agent="deez")
 #the quick brown fox jumps over the lazy dog
 
 userList = []
-    
+
+# Add a user to userList while maintaining alphabetical order
 def addUser(newUser):
         if userList.count == 0:
             userList.append(newUser)
@@ -34,19 +35,33 @@ class Trip:
         #adds a rider to the trip
         self.riders.append(rider)
 
+    def startTrip(self):
+        driver.currentTrip = self
+        for rider in self.riders:
+            rider
+
+    def endTrip(self):
+        for rider in self.riders:
+            rider.tripHistory.append(TripRecord(self, rider))
+       
+        self.driver.tripHistory.append(TripRecord(self, rider))
+
 class Account:
-    def __init__(self, username):
+    def __init__(self, username, driver):
         self.username = username
-        self.tripHistory = []
-        self.plannedTrips = []
+        self.tripHistory = [] # List of completed trips
+        self.plannedTrips = [] # List of future trips
         self.currentTrip = None
         self.path = 'placeholder'
         self.stopTime = None
+        self.isDriver = driver
         addUser(self)
 
     def __repr__(self):
         return str([self.path, self.username])
     
+    def setIsDriver(self, driver):
+        self.isDriver = driver
 
     #called when a driver account creates a new trip
     def newDriverTrip(self):
@@ -87,17 +102,35 @@ class Account:
         trip.rideRequests.remove((rider.username, rider.currentTrip))
 
 
-    def requestFulfilled(self, trip):
-        #gets the endtime of the trip for each rider, allowing for personalized data collection
+    def requestFulfilled(self, trip: Trip):
+        #finishes the trip for one rider and saves it in his history
         self.stopTime = datetime.datetime.now()
-        
+        #ends the trip once the driver is done
+        if self.isDriver: 
+            trip.endTrip() 
+        else:
+            self.tripHistory.append(TripRecord(trip, self))
+            trip.riders.remove(self)
 
 
+class TripRecord:
+    def __init__(self, trip: Trip, account: Account):
+        self.startTime = trip.startTime
+        self.endTime = datetime.datetime.now()
+        self.riders = trip.riders
+        self.driver = trip.driver
+        self.startLocation = trip.startLocation
+        self.destination = trip.destination
+        self.isDriver = account.isDriver
+       
+    def __repr__(self):
+        return "Trip from " + str(self.startLocation) + " at " + str(self.startTime) + " to " + str(self.destination) + " at " + str(self.endTime)
+            
 #creates the driver and rider accounts
-driver = Account("Milo")
-rider1 = Account("Max")
-rider2 = Account("Charlie")
-rider3 = Account("Scott Gurney")
+driver = Account("Milo", True)
+rider1 = Account("Max", False)
+rider2 = Account("Charlie", False)
+rider3 = Account("Scott Gurney", False)
 
 trip = driver.newDriverTrip()
 
@@ -112,3 +145,7 @@ driver.acceptRequest(trip, rider1)
 driver.acceptRequest(trip, rider2)
 driver.acceptRequest(trip, rider3)
 print(trip.rideRequests)
+print(trip.riders)
+rider3.requestFulfilled(trip)
+print(rider3.tripHistory[0])
+print(trip.riders)
